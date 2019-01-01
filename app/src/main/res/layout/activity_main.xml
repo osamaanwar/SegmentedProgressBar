@@ -10,8 +10,10 @@
         tools:context=".MainActivity">
 
     <com.tintash.segmentedprogressbar.SegmentedProgressBar
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:progress="2"/>
-    
+            app:progress="1"
+            app:segment_count="4"
+            app:segment_style="rounded_edges"/>
+
 </LinearLayout>

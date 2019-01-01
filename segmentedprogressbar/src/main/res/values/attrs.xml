@@ -1,13 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <declare-styleable name="SegmentedProgressBar">
-        <attr name="segment_empty_color" format="color" />
-        <attr name="segment_filled_color" format="color" />
+        <attr name="segment_empty_color" format="color"/>
+        <attr name="segment_filled_color" format="color"/>
 
-        <attr name="segment_count" format="integer" />
-        <attr name="progress" format="integer" />
+        <attr name="segment_count" format="integer"/>
+        <attr name="progress" format="integer"/>
 
-        <attr name="segment_spacing" format="dimension" />
-        <attr name="segment_stroke_width" format="dimension" />
+        <attr name="segment_spacing" format="dimension"/>
+        <attr name="segment_stroke_width" format="dimension"/>
+
+        <attr name="segment_style" format="enum">
+            <enum name="squared" value="0"/>
+            <enum name="rounded" value="1"/>
+            <enum name="rounded_edges" value="2"/>
+        </attr>
     </declare-styleable>
 </resources>

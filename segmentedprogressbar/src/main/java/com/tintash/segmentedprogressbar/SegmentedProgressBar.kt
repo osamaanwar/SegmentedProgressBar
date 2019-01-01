@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.support.annotation.ColorInt
+import android.support.annotation.IntDef
 import android.support.v4.content.ContextCompat
 import android.util.AttributeSet
 import android.view.View
@@ -109,6 +110,15 @@ class SegmentedProgressBar @JvmOverloads constructor(
      */
     private var singleSegmentWidth = calculateSingleSegmentWidth()
 
+    @SegmentStyle
+    var segmentStyle = SegmentStyle.ROUNDED_EDGES
+        set(value) {
+            field = value
+
+            backgroundPaint.strokeCap = if (value == SegmentStyle.SQUARED) Paint.Cap.SQUARE else Paint.Cap.ROUND
+            progressPaint.strokeCap = if (value == SegmentStyle.SQUARED) Paint.Cap.SQUARE else Paint.Cap.ROUND
+        }
+
     private val backgroundPaint = Paint().apply {
         color = ContextCompat.getColor(context, R.color.background_color)
         style = Paint.Style.FILL
@@ -155,6 +165,8 @@ class SegmentedProgressBar @JvmOverloads constructor(
                 utils.convertDpToPixel(DEFAULT_SEGMENT_STROKE_WIDTH_DP)
             )
 
+            segmentStyle = typedArray.getInt(R.styleable.SegmentedProgressBar_segment_style, SegmentStyle.ROUNDED_EDGES)
+
             typedArray.recycle()
         }
     }
@@ -197,28 +209,58 @@ class SegmentedProgressBar @JvmOverloads constructor(
 
         while (index < finalIndex) {
 
-            val isTopLeftRounded = index == 0
-            val isBottomLeftRounded = index == 0
+            when (segmentStyle) {
+                SegmentStyle.ROUNDED_EDGES -> {
+                    val isTopLeftRounded = index == 0
+                    val isBottomLeftRounded = index == 0
 
-            val isTopRightRounded = index == segmentsCount - 1
-            val isBottomRightRounded = index == segmentsCount - 1
+                    val isTopRightRounded = index == segmentsCount - 1
+                    val isBottomRightRounded = index == segmentsCount - 1
 
-            val path = utils.getRoundedRectPath(
-                startingPosition,
-                midHeight - (segmentStrokeWidth / 2),
-                startingPosition + singleSegmentWidth,
-                midHeight + (segmentStrokeWidth / 2),
-                segmentStrokeWidth,
-                segmentStrokeWidth,
-                isTopLeftRounded,
-                isTopRightRounded,
-                isBottomRightRounded,
-                isBottomLeftRounded
-            )
+                    val path = utils.getRoundedRectPath(
+                        startingPosition,
+                        midHeight - (segmentStrokeWidth / 2),
+                        startingPosition + singleSegmentWidth,
+                        midHeight + (segmentStrokeWidth / 2),
+                        segmentStrokeWidth,
+                        segmentStrokeWidth,
+                        isTopLeftRounded,
+                        isTopRightRounded,
+                        isBottomRightRounded,
+                        isBottomLeftRounded
+                    )
 
-            this.drawPath(path, paint)
+                    this.drawPath(path, paint)
+                }
+                SegmentStyle.SQUARED -> {
+                    val stoppingPosition = startingPosition + singleSegmentWidth
+                    drawRect(
+                        startingPosition,
+                        midHeight - (segmentStrokeWidth / 2),
+                        stoppingPosition,
+                        midHeight + (segmentStrokeWidth / 2),
+                        paint
+                    )
+                }
+                SegmentStyle.ROUNDED -> {
+                    val path = utils.getRoundedRectPath(
+                        startingPosition,
+                        midHeight - (segmentStrokeWidth / 2),
+                        startingPosition + singleSegmentWidth,
+                        midHeight + (segmentStrokeWidth / 2),
+                        segmentStrokeWidth,
+                        segmentStrokeWidth,
+                        true,
+                        true,
+                        true,
+                        true
+                    )
+
+                    this.drawPath(path, paint)
+                }
+            }
+
             startingPosition += singleSegmentWidth + segmentSpacing
-
             index++
         }
 
@@ -267,5 +309,20 @@ class SegmentedProgressBar @JvmOverloads constructor(
     fun setFilledColor(@ColorInt color: Int) {
         progressPaint.color = color
         invalidate()
+    }
+
+    @Retention(AnnotationRetention.SOURCE)
+    @MustBeDocumented
+    @IntDef(
+        SegmentStyle.SQUARED,
+        SegmentStyle.ROUNDED,
+        SegmentStyle.ROUNDED_EDGES
+    )
+    annotation class SegmentStyle {
+        companion object {
+            const val SQUARED = 0
+            const val ROUNDED = 1
+            const val ROUNDED_EDGES = 2
+        }
     }
 }
